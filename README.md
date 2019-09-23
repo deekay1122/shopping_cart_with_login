@@ -1,8 +1,9 @@
 # Node.js & Passport Login
 
-This is a user login and registration app using Node.js, Express, Passport, Mongoose, EJS and some other packages.
+The user login app is a clone of Brad Traversy repository. https://github.com/bradtraversy/node_passport_login
+Password reset, I used the logic from this article. http://sahatyalkabov.com/how-to-implement-password-reset-in-nodejs/
 
-### Version: 2.0.0
+### Version: 1.0.0
 
 ### Usage
 
@@ -17,7 +18,3 @@ $ npm run dev
 
 # Visit http://localhost:5000
 ```
-
-### MongoDB
-
-Open "config/keys.js" and add your MongoDB URI, local or Atlas
