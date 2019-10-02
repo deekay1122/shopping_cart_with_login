@@ -16,7 +16,6 @@ module.exports = (req, res) => {
       .then(foundToken=>{
         if(foundToken.token = req.query.token){
           errors.push({ msg: `Hello ${user.name}! Please enter new password` });
-          console.log(user.id);
           res.render('reset', {
             errors,
             user
