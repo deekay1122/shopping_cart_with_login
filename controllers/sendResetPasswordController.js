@@ -49,7 +49,8 @@ module.exports = (req, res) => {
                 email
               });
             }
-          });
+          })
+          .catch(err => console.log(err));
       }
     })
     .catch(err => console.log(err));

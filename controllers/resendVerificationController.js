@@ -7,7 +7,8 @@ const sequelize = require('../config/connection');
 
 module.exports = (req, res) => {
   const host = req.get('host');
-  const { email, password } = req.body;
+  const { email } = req.body;
+  console.log(email);
   let verifyEmailToken;
   let errors = [];
 
