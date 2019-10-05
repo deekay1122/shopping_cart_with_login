@@ -2,6 +2,7 @@ require('dotenv').config();
 const time = require('time');
 const now = new time.Date();
 const express = require('express');
+const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
 // const mongoose = require('mongoose');
 const passport = require('passport');
@@ -35,6 +36,8 @@ sequelize.sync();
 // EJS
 app.use(expressLayouts);
 app.set('view engine', 'ejs');
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Express body parser
 app.use(express.urlencoded({ extended: true }));

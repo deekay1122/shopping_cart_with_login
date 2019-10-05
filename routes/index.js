@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
+const Product = require('../models/Product');
 
 // Welcome Page
 router.get('/', forwardAuthenticated, (req, res) => res.render('welcome'));
@@ -11,5 +12,11 @@ router.get('/dashboard', ensureAuthenticated, (req, res) =>
     user: req.user
   })
 );
+
+router.get('/shop', (req, res)=>{
+  Product.findAll().then(products=>{
+    res.render('shop', {products: products});
+  }).catch(err => console.log(err));
+});
 
 module.exports = router;
