@@ -40,7 +40,8 @@ const VerificationController = (req, res) => {
       }
     })
     .catch(reason => {
-      return res.status(404).json(`Email not found`);
+      req.flash('error_msg', 'Verification Failed');
+      res.redirect('/users/resend_verification');
     });
 }
 

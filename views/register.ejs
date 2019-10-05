@@ -50,6 +50,7 @@
             value="<%= typeof password2 != 'undefined' ? password2 : '' %>"
           />
         </div>
+        <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
         <button type="submit" class="btn btn-primary btn-block">
           Register
         </button>

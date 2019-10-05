@@ -24,6 +24,7 @@
             placeholder="Enter New Password"
           />
         </div>
+        <input type="hidden" name="_csrf" value="<%= csrfToken() %>">
         <button type="submit" class="btn btn-primary btn-block">Reset</button>
       </form>
     </div>

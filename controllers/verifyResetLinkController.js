@@ -18,10 +18,14 @@ module.exports = (req, res) => {
           errors.push({ msg: `Hello ${user.name}! Please enter new password` });
           res.render('reset', {
             errors,
-            user
+            user,
+            csrfToken: req.csrfToken
           })
         }
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err);
+        res.redirect('/users/register');
+      });
     })
 }

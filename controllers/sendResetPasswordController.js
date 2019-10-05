@@ -17,7 +17,8 @@ module.exports = (req, res) => {
         errors.push({ msg: 'That email is not registered' });
         res.render('forgot', {
           errors,
-          email
+          email,
+          csrfToken: req.csrfToken
         });
       }
       if(user){
@@ -34,7 +35,8 @@ module.exports = (req, res) => {
               errors.push({ msg: 'Password reset link is sent to your account' });
               res.render('forgot', {
                 errors,
-                email
+                email,
+                csrfToken: req.csrfToken
               });
             }
             if(foundToken){
@@ -46,7 +48,8 @@ module.exports = (req, res) => {
               errors.push({ msg: 'Password reset link is sent to your account'});
               res.render('forgot', {
                 errors,
-                email
+                email,
+                csrfToken: req.csrfToken
               });
             }
           })

@@ -18,7 +18,8 @@ module.exports = (req, res) => {
   if (errors.length > 0) {
     res.render('resendVerification', {
       errors,
-      email
+      email,
+      csrfToken: req.csrfToken
     });
   } else {
     User.findOne({ where: { email: email }}).then(user => {
@@ -27,7 +28,8 @@ module.exports = (req, res) => {
         res.render('resendVerification', {
           errors,
           email,
-          password
+          password,
+          csrfToken: req.csrfToken
         });
       } else {
         const secret = email + Date.now();
