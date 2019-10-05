@@ -1,0 +1,15 @@
+<div class="row">
+  <% products.forEach((product=>{%>
+    <div class="card col-sm-6 col-md-4 mt-3">
+    <img src="<%-product.imagePath%>" class="card-img-top" alt="...">
+    <div class="card-body">
+      <h5 class="card-title"><%-product.productName%></h5>
+      <p class="card-text"><%-product.description%></p>
+      <div class="">
+        <div class="price float-left">$<%-product.price%></div>
+        <a href="#" class="btn btn-success float-right">Add To Cart</a>
+      </div>
+    </div>
+  </div>
+  <%}));%>
+</div>
