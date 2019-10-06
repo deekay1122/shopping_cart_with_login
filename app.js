@@ -7,10 +7,10 @@ const expressLayouts = require('express-ejs-layouts');
 // const mongoose = require('mongoose');
 const passport = require('passport');
 const flash = require('connect-flash');
-const session = require('express-session');
 const nodemailer = require('nodemailer');
 const cookieParser = require('cookie-parser');
-
+const session = require('express-session');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const app = express();
 
 // Passport Config
@@ -45,9 +45,13 @@ app.use(cookieParser());
 // Express session
 app.use(
   session({
-    secret: 'secret',
-    resave: true,
-    saveUninitialized: true
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: new SequelizeStore({
+      db: sequelize
+    }),
+    cookie: { maxAge: 10 * 60 * 1000 }
   })
 );
 

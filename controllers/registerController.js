@@ -66,6 +66,7 @@ module.exports = (req, res) => {
                   'success_msg',
                   'You are now registered. Please verify your email before logging in'
                 );
+                res.redirect('/users/login');
                 const newToken = new VerificationToken({
                   userId: user.id,
                   token: verifyEmailToken,
@@ -73,16 +74,7 @@ module.exports = (req, res) => {
                 });
                 newToken
                   .save();
-                  // .then(token => {
-                  //   sequelize.query(`
-                  //     CREATE EVENT IF NOT EXISTS expireToken
-                  //     ON SCHEDULE EVERY 1 HOUR STARTS '2019-09-23 16:00:00'
-                  //     DO
-                  //     DELETE FROM verificationtokens WHERE expiresAt <= CURRENT_TIMESTAMP;
-                  //     `)
-                  //     .then(console.log('expireToken event created'));
-                  // });
-                res.redirect('/users/login');
+                // res.redirect('/users/login');
               })
               .catch(err => console.log(err));
           });
