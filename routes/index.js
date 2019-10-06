@@ -19,4 +19,8 @@ router.get('/shop', (req, res)=>{
   }).catch(err => console.log(err));
 });
 
+router.get('/add_to_shopping_cart/:id', (req, res)=>{
+  let productId = req.params.id;
+});
+
 module.exports = router;
