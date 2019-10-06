@@ -11,7 +11,6 @@ const session = require('express-session');
 const nodemailer = require('nodemailer');
 const cookieParser = require('cookie-parser');
 
-
 const app = express();
 
 // Passport Config
@@ -41,7 +40,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Express body parser
 app.use(express.urlencoded({ extended: true }));
-
 app.use(cookieParser());
 
 // Express session
