@@ -40,7 +40,7 @@ router.get('/logout', (req, res) => {
 });
 
 // get forgot password
-router.get('/forgot', csrfProtection, (req, res) => {
+router.get('/forgot', csrfProtection, forwardAuthenticated, (req, res) => {
   res.render('forgot', { csrfToken: req.csrfToken });
 });
 
@@ -50,14 +50,14 @@ router.post('/forgot', parseForm, csrfProtection, SendResetPasswordController);
 
 //  get reset password & handler
 const VerifyResetLinkController = require('../controllers/verifyResetLinkController');
-router.get('/reset_password', csrfProtection, VerifyResetLinkController);
+router.get('/reset_password', forwardAuthenticated, csrfProtection, VerifyResetLinkController);
 
 // password reset handler
 const PostNewPasswordController = require('../controllers/postNewPasswordController');
 router.post('/reset_password', parseForm, csrfProtection, PostNewPasswordController);
 
 // get resend_verification
-router.get('/resend_verification', csrfProtection, (req, res) => {
+router.get('/resend_verification', forwardAuthenticated, csrfProtection, (req, res) => {
   res.render('resendVerification', { csrfToken: req.csrfToken });
 });
 

@@ -40,7 +40,8 @@ module.exports = (req, res) => {
           name,
           email,
           password,
-          password2
+          password2,
+          csrfToken: req.csrfToken
         });
       } else {
         const secret = email + Date.now();
