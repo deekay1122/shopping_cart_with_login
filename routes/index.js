@@ -14,26 +14,4 @@ router.get('/dashboard', ensureAuthenticated, (req, res) =>
   })
 );
 
-router.get('/shop', (req, res)=>{
-  Product.findAll().then(products=>{
-    res.render('shop', {products: products});
-  }).catch(err => console.log(err));
-});
-
-router.get('/add_to_shopping_cart/:id', (req, res)=>{
-  console.log(req.params);
-  let productId = req.params.id;
-  let cart = new Cart(req.session.cart ? req.session.cart : {} );
-  Product.findOne({where: {id: productId}}).then(product=>{
-    cart.add(product, product.id);
-    req.session.cart = cart;
-    console.log(req.session.cart);
-    res.redirect('/shop');
-  })
-  .catch(err => {
-    console.log(err);
-    res.redirect('/shop');
-  });
-});
-
 module.exports = router;

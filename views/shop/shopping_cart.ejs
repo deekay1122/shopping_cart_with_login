@@ -1,0 +1,21 @@
+<div class="row">
+<%if(products!==null){%>
+  <ul>
+    <% products.forEach(product=>{ %>
+      <li><%= product.item.productName %> <%= product.item.price %> <%= product.price %> <%= product.qty %></li>
+    <% }); %>
+    <div>
+        <%= totalQty %>
+    </div>
+    <div>
+        <%= totalPrice %>
+    </div>
+    <a href="/shop/checkout" class="btn btn-primary" name="button">Checkout</a>
+  </ul>
+<%} else { %>
+  <div>
+    No Items In Cart!
+  </div>
+<%}%>
+
+</div>

@@ -1,4 +1,9 @@
 <div class="row">
+  <div>
+    <% include ../partials/messages %>
+  </div>
+</div>
+<div class="row">
   <% products.forEach((product=>{%>
     <div class="card col-sm-6 col-md-4 mt-3">
     <img src="<%-product.imagePath%>" class="card-img-top" alt="...">
@@ -7,7 +12,7 @@
       <p class="card-text"><%-product.description%></p>
       <div class="">
         <div class="price float-left">$<%-product.price%></div>
-        <a href="/add_to_shopping_cart/<%-product.id%>" class="btn btn-success float-right">Add To Cart</a>
+        <a href="/shop/add_to_shopping_cart/<%-product.id%>" class="btn btn-success float-right">Add To Cart</a>
       </div>
     </div>
   </div>
