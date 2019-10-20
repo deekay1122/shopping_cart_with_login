@@ -1,10 +1,7 @@
 require('dotenv').config();
-const time = require('time');
-const now = new time.Date();
 const express = require('express');
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
-// const mongoose = require('mongoose');
 const passport = require('passport');
 const flash = require('connect-flash');
 const nodemailer = require('nodemailer');
@@ -12,6 +9,11 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const app = express();
+
+// Stripe Config
+const keyPublishable = process.env.PUBLISHABLE_KEY;
+const keySecret = process.env.SECRET_KEY;
+const stripe = require("stripe")(keySecret);
 
 // Passport Config
 require('./config/passport')(passport);
@@ -33,10 +35,10 @@ sequelize
 sequelize.sync();
 
 // EJS
-app.use(expressLayouts);
 app.set('view engine', 'ejs');
-
-app.use(express.static(path.join(__dirname, 'public')));
+app.set('views', __dirname + '/views');
+app.use(expressLayouts);
+app.use(express.static(path.join(__dirname, '/public')));
 
 // Express body parser
 app.use(express.urlencoded({ extended: true }));
@@ -52,6 +54,19 @@ app.use(
       db: sequelize
     }),
     cookie: { maxAge: 60 * 60 * 1000 }
+  })
+);
+
+// JSON Config
+app.use(
+  express.json({
+    // We need the raw body to verify webhook signatures.
+    // Let's compute it only when hitting the Stripe webhook endpoint.
+    verify: function(req, res, buf) {
+      if (req.originalUrl.startsWith("/webhook")) {
+        req.rawBody = buf.toString();
+      }
+    }
   })
 );
 
@@ -76,6 +91,13 @@ app.use(function(req, res, next) {
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 app.use('/shop', require('./routes/shop'));
+
+// Fetch the Checkout Session to display the JSON result on the success page
+app.get("/checkout-session", async (req, res) => {
+  const { sessionId } = req.query;
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  res.send(session);
+});
 
 const PORT = process.env.PORT || 5000;
 
