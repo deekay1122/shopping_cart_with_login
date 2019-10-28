@@ -3,14 +3,44 @@ const router = express.Router();
 const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
 const Product = require('../models/Product');
 const Cart = require('../models/Cart');
+const User = require('../models/User');
+const Order = require('../models/Order');
 const keyPublishable = process.env.PUBLISHABLE_KEY;
 const keySecret = process.env.SECRET_KEY;
 const stripe = require("stripe")(keySecret);
+const { dontHaveItems } = require('../config/auth');
 
-router.get('/', (req, res)=>{
-  Product.findAll().then(products=>{
-    res.render('shop/shop', {products: products});
-  }).catch(err => console.log(err));
+router.get('/', async (req, res)=>{
+  const products = await Product.findAll();
+  if(req.user){
+    const userId = await req.user.id;
+    const user = await User.findOne({
+      where:{
+        id:userId
+      },
+      include: [Order]
+    });
+    let orders = [];
+    user.orders.forEach(order=>{
+      function onlyUnique(value, index, self) {
+        return self.indexOf(value) === index;
+      }
+      orders.push(order.productIds.split(","));
+      orders = [].concat.apply([], orders);
+      orders = orders.filter(onlyUnique);
+    });
+    res.render('shop/shop',{
+      products,
+      orders,
+      req
+    });
+  }
+  else {
+    res.render('shop/shop',{
+      products,
+      req
+    });
+  }
 });
 
 router.get('/add_to_shopping_cart/:id', (req, res)=>{
@@ -38,17 +68,35 @@ router.get('/add_to_shopping_cart/:id', (req, res)=>{
 });
 
 router.get('/shopping_cart', (req, res)=>{
-  console.log(req.session.cart);
   if(!req.session.cart){
     return res.render('shop/shopping_cart', {products: null});
   }
   let cart = new Cart(req.session.cart);
-  res.render('shop/shopping_cart', { products: cart.generateArray(), totalPrice: cart.totalPrice, totalQty: cart.totalQty});
+  return res.render('shop/shopping_cart', { products: cart.generateArray(), totalPrice: cart.totalPrice, totalQty: cart.totalQty});
 });
 
-router.get('/checkout', (req, res)=>{
+router.get('/checkout', ensureAuthenticated, async (req, res)=>{
+  if(!req.session.cart){
+    return res.redirect('/shop');
+  }
+  const userId = await req.user.id;
+  const user = await User.findOne({
+    where:{
+      id:userId
+    },
+    include: [Order]
+  });
+  let purchased_before = [];
+  user.orders.forEach(order=>{
+    function onlyUnique(value, index, self) {
+      return self.indexOf(value) === index;
+    }
+    purchased_before.push(order.productIds.split(","));
+    purchased_before = [].concat.apply([], purchased_before);
+    purchased_before = purchased_before.filter(onlyUnique);
+  });
   let cart = new Cart(req.session.cart);
-  res.render('shop/checkout', { totalPrice: cart.totalPrice });
+  res.render('shop/checkout', { totalPrice: cart.totalPrice, purchased_before: purchased_before });
 });
 
 const postCheckoutController = require('../controllers/postCheckoutController');

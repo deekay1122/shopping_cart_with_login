@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/connection');
+const Order = require('./Order');
 
 const User = sequelize.define('user', {
   // attributes
@@ -36,5 +37,8 @@ const User = sequelize.define('user', {
   }
 }
 });
+// User.associate = function(){
+//   User.hasMany(Order);
+// };
 
 module.exports = User;

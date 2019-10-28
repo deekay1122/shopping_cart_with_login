@@ -21,7 +21,10 @@ const VerificationController = require('../controllers/verificationController');
 router.get('/verification', VerificationController);
 
 // get Login Page
-router.get('/login', csrfProtection, forwardAuthenticated, (req, res) => res.render('login', { csrfToken: req.csrfToken }));
+router.get('/login', csrfProtection, forwardAuthenticated, (req, res) => res.render('login', {
+   csrfToken: req.csrfToken,
+   originalUrl: undefined
+ }));
 
 // Login handler
 router.post('/login', parseForm, csrfProtection, (req, res, next) => {

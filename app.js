@@ -19,8 +19,12 @@ const stripe = require("stripe")(keySecret);
 require('./config/passport')(passport);
 
 // DB Config
-
+const Sequelize = require('sequelize');
 const sequelize = require('./config/connection');
+const User = require('./models/User');
+const Order = require('./models/Order');
+
+User.hasMany(Order);
 
 // Connect to Mysql
 sequelize
@@ -32,7 +36,7 @@ sequelize
     console.error('Unable to connect to the database:', err);
   });
 
-sequelize.sync();
+  sequelize.sync();
 
 // EJS
 app.set('view engine', 'ejs');
@@ -92,12 +96,8 @@ app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 app.use('/shop', require('./routes/shop'));
 
-// Fetch the Checkout Session to display the JSON result on the success page
-app.get("/checkout-session", async (req, res) => {
-  const { sessionId } = req.query;
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
-  res.send(session);
-});
+// product seeder
+// require('./seeders/productSeeder');
 
 const PORT = process.env.PORT || 5000;
 
