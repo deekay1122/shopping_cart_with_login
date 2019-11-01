@@ -47,17 +47,17 @@ router.get('/add_to_shopping_cart/:id', (req, res)=>{
   // console.log(req.session.cart);
   let productId = req.params.id;
   let cart = new Cart(req.session.cart ? req.session.cart : {} );
-  Product.findOne({where: {id: productId}}).then(product=>{
+  Product.findOne({where: {id: productId}}).then(async product=>{
     if(cart.items[productId] == undefined){
-      cart.add(product, product.id);
-      req.session.cart = cart;
-      req.flash('success_msg', `${product.productName} is added to the cart`);
-      res.redirect('/shop');
+      await cart.add(product, product.id);
+      req.session.cart = await cart;
+      await req.flash('success_msg', `${product.productName} is added to the cart`);
+      await res.redirect('/shop');
     }
     else if(cart.items[productId] !== undefined){
       if(cart.items[productId].qty == 1){
-        req.flash('error_msg', 'You already have that item in cart');
-        res.redirect('/shop');
+        await req.flash('error_msg', 'You already have that item in cart');
+        await res.redirect('/shop');
       }
     }
   })
