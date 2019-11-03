@@ -49,15 +49,15 @@ router.get('/add_to_shopping_cart/:id', (req, res)=>{
   let cart = new Cart(req.session.cart ? req.session.cart : {} );
   Product.findOne({where: {id: productId}}).then(async product=>{
     if(cart.items[productId] == undefined){
-      await cart.add(product, product.id);
-      req.session.cart = await cart;
+      cart.add(product, product.id);
+      req.session.cart = cart;
       await req.flash('success_msg', `${product.productName} is added to the cart`);
-      await res.redirect('/shop');
+      res.redirect('/shop');
     }
     else if(cart.items[productId] !== undefined){
       if(cart.items[productId].qty == 1){
         await req.flash('error_msg', 'You already have that item in cart');
-        await res.redirect('/shop');
+        res.redirect('/shop');
       }
     }
   })
@@ -86,6 +86,7 @@ router.get('/checkout', ensureAuthenticated, async (req, res)=>{
     },
     include: [Order]
   });
+  console.log('Yes I Know', user.orders);
   let purchased_before = [];
   user.orders.forEach(order=>{
     function onlyUnique(value, index, self) {
@@ -96,7 +97,7 @@ router.get('/checkout', ensureAuthenticated, async (req, res)=>{
     purchased_before = purchased_before.filter(onlyUnique);
   });
   let cart = new Cart(req.session.cart);
-  res.render('shop/checkout', { totalPrice: cart.totalPrice, purchased_before: purchased_before });
+  res.render('shop/checkout', { totalPrice: cart.totalPrice, purchased_before: purchased_before, user: user });
 });
 
 const postCheckoutController = require('../controllers/postCheckoutController');

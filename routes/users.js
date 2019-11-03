@@ -29,16 +29,16 @@ router.get('/login', csrfProtection, forwardAuthenticated, (req, res) => res.ren
 // Login handler
 router.post('/login', parseForm, csrfProtection, (req, res, next) => {
   passport.authenticate('local', {
-    successRedirect: '/dashboard',
+    successRedirect: req.session.originalUrl ? req.session.originalUrl : '/dashboard',
     failureRedirect: '/users/login',
     failureFlash: true
   })(req, res, next);
 });
 
 // Logout
-router.get('/logout', (req, res) => {
+router.get('/logout', async (req, res) => {
   req.logout();
-  req.flash('success_msg', 'You are logged out');
+  await req.flash('success_msg', 'You are logged out');
   res.redirect('/users/login');
 });
 
