@@ -2,8 +2,17 @@ const User = require('../models/user');
 const ResetPasswordToken = require('../models/resetpasswordtoken');
 const send_email = require('../helpers/send_passwordreset_email');
 const crypto = require('crypto');
+const Cart = require('../models/Cart');
 
 module.exports = (req, res) => {
+  // construct cart variable
+  const cart = new Cart(req.session.cart ? req.session.cart : {});
+  let totalQty = 0;
+  let totalPrice = 0;
+  cart.generateArray().forEach(item=>{
+    totalQty += item.qty;
+    totalPrice += item.item.price;
+  });
   const host = req.get('host');
   let errors = [];
   const email = req.body.email;
@@ -18,7 +27,9 @@ module.exports = (req, res) => {
         res.render('forgot', {
           errors,
           email,
-          csrfToken: req.csrfToken
+          csrfToken: req.csrfToken,
+          totalPrice,
+          totalQty
         });
       }
       if(user){
@@ -36,7 +47,9 @@ module.exports = (req, res) => {
               res.render('forgot', {
                 errors,
                 email,
-                csrfToken: req.csrfToken
+                csrfToken: req.csrfToken,
+                totalPrice,
+                totalQty
               });
             }
             if(foundToken){
@@ -49,7 +62,9 @@ module.exports = (req, res) => {
               res.render('forgot', {
                 errors,
                 email,
-                csrfToken: req.csrfToken
+                csrfToken: req.csrfToken,
+                totalQty,
+                totalPrice
               });
             }
           })

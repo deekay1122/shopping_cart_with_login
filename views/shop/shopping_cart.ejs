@@ -1,13 +1,14 @@
-<div class="row">
 <%if(products!==null){%>
     <% products.forEach(product=>{ %>
-      <li><%= product.item.productName %> <%= product.item.price %> <%= product.price %> <%= product.qty %></li>
+      <div>
+        <%= product.item.productName %> <%= product.item.price %> JPY
+      </div>
     <% }); %>
     <div>
-        <%= totalQty %>
+        Total Qty <%= totalQty %>
     </div>
     <div>
-        <%= totalPrice %>
+        Total Price <%= totalPrice %>
     </div>
     <a href="/shop/checkout" class="btn btn-primary">Checkout</a>
 <%} else { %>
@@ -15,5 +16,3 @@
     No Items In Cart!
   </div>
 <%}%>
-
-</div>

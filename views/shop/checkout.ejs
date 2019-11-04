@@ -1,3 +1,20 @@
+<% if(products_in_cart){ %>
+	<% products_in_cart.forEach(product=>{ %>
+		<div class="row">
+			<div>
+				<%= product.item.productName %> <%= product.item.price %> JPY
+			</div>
+				<% if(purchased_before.includes(String(product.item.id))){ %>
+					<a href="/shop/cart_item_delete/<%=product.item.id%>" class="btn btn-warning">
+	  				You already have this item (delete)
+					</a>
+				<% } %>
+		</div>
+	<% })%>
+	<div>
+		Total Price <%= totalPrice %>
+	</div>
+<% } %>
 <form action="" method="post" id="payment-form">
 
 	  <div class="form-row">

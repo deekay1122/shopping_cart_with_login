@@ -12,7 +12,14 @@ const { dontHaveItems } = require('../config/auth');
 
 router.get('/', async (req, res)=>{
   const products = await Product.findAll();
+  let totalQty = 0;
+  let totalPrice = 0;
+  const cart = new Cart(req.session.cart ? req.session.cart : {} );
   if(req.user){
+    cart.generateArray().forEach(item=>{
+      totalPrice += item.item.price;
+      totalQty += item.qty;
+    });
     const userId = await req.user.id;
     const user = await User.findOne({
       where:{
@@ -32,13 +39,22 @@ router.get('/', async (req, res)=>{
     res.render('shop/shop',{
       products,
       orders,
-      req
+      req,
+      user,
+      totalPrice,
+      totalQty
     });
   }
   else {
+    cart.generateArray().forEach(item=>{
+      totalPrice += item.item.price;
+      totalQty += item.qty;
+    });
     res.render('shop/shop',{
       products,
-      req
+      req,
+      totalQty,
+      totalPrice
     });
   }
 });
@@ -68,11 +84,26 @@ router.get('/add_to_shopping_cart/:id', (req, res)=>{
 });
 
 router.get('/shopping_cart', (req, res)=>{
+  const user = req.user;
+  let totalQty = 0;
+  let totalPrice = 0;
   if(!req.session.cart){
-    return res.render('shop/shopping_cart', {products: null});
+    return res.render('shop/shopping_cart', {products: null, user: user});
   }
-  let cart = new Cart(req.session.cart);
-  return res.render('shop/shopping_cart', { products: cart.generateArray(), totalPrice: cart.totalPrice, totalQty: cart.totalQty});
+  const cart = new Cart(req.session.cart);
+  cart.generateArray().forEach(item=>{
+    totalPrice += item.item.price;
+    totalQty += item.qty;
+  });
+  if(totalQty==0){
+    res.redirect('/shop');
+  }
+  return res.render('shop/shopping_cart', {
+    products: cart.generateArray(),
+    user,
+    totalQty,
+    totalPrice
+  });
 });
 
 router.get('/checkout', ensureAuthenticated, async (req, res)=>{
@@ -86,7 +117,6 @@ router.get('/checkout', ensureAuthenticated, async (req, res)=>{
     },
     include: [Order]
   });
-  console.log('Yes I Know', user.orders);
   let purchased_before = [];
   user.orders.forEach(order=>{
     function onlyUnique(value, index, self) {
@@ -96,8 +126,24 @@ router.get('/checkout', ensureAuthenticated, async (req, res)=>{
     purchased_before = [].concat.apply([], purchased_before);
     purchased_before = purchased_before.filter(onlyUnique);
   });
-  let cart = new Cart(req.session.cart);
-  res.render('shop/checkout', { totalPrice: cart.totalPrice, purchased_before: purchased_before, user: user });
+  const cart = new Cart(req.session.cart);
+  let totalQty = 0;
+  let totalPrice = 0;
+  cart.generateArray().forEach(item=>{
+    totalPrice += item.item.price;
+    totalQty += item.qty;
+  });
+  if(totalQty==0){
+    res.redirect('/shop');
+  }
+  res.render('shop/checkout', {
+    totalQty,
+    totalPrice,
+    purchased_before,
+    user,
+    products_in_cart: cart.generateArray(),
+    orders: user.orders
+  });
 });
 
 const postCheckoutController = require('../controllers/postCheckoutController');
@@ -105,5 +151,11 @@ router.post('/checkout', postCheckoutController);
   // Set your secret key: remember to change this to your live secret key in production
   // See your keys here: https://dashboard.stripe.com/account/apikeys
 
+router.get('/cart_item_delete/:id', (req, res)=>{
+  const productId = req.params.id;
+  delete req.session.cart.items[String(productId)];
+  res.redirect('/shop/checkout');
+
+});
 
 module.exports = router;

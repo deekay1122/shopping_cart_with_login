@@ -38,6 +38,7 @@ module.exports = (req, res) =>{
         totalAmount: totalPrice,
       });
       newOrder.save();
+      delete req.session.cart;
       res.redirect('/dashboard');
     });
   });

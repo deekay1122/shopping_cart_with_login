@@ -1,13 +1,21 @@
 const User = require('../models/user');
 const ResetPasswordToken = require('../models/resetpasswordtoken');
+const Cart = require('../models/Cart');
+
 
 module.exports = (req, res) => {
+  const cart = new Cart(req.session.cart ? req.session.cart : {});
+  let totalQty = 0;
+  let totalPrice = 0;
+  cart.generateArray().forEach(item=>{
+    totalQty += item.qty;
+    totalPrice += item.item.price;
+  });
   let errors = [];
   const email = req.query.email;
   if(email == undefined){
     res.redirect('/users/login');
   }
-
   return User.findOne({
     where: { email: req.query.email }
   })
@@ -19,7 +27,9 @@ module.exports = (req, res) => {
           res.render('reset', {
             errors,
             user,
-            csrfToken: req.csrfToken
+            csrfToken: req.csrfToken,
+            totalQty,
+            totalPrice
           })
         }
       })

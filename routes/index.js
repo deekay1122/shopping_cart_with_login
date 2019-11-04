@@ -7,19 +7,54 @@ const Order = require('../models/Order');
 const User = require('../models/User');
 
 // Welcome Page
-router.get('/', forwardAuthenticated, (req, res) => res.render('welcome'));
+router.get('/', forwardAuthenticated, (req, res) => {
+  let totalQty = 0;
+  let totalPrice = 0;
+  if(req.session.cart!==undefined){
+    const cart = new Cart(req.session.cart);
+    cart.generateArray().forEach(item=>{
+      totalPrice += item.item.price;
+      totalQty += item.qty;
+    });
+  }
+  res.render('welcome', {
+    user: null,
+    totalPrice,
+    totalQty
+  });
+});
 
 // Dashboard
-router.get('/dashboard', ensureAuthenticated, (req, res) =>{
-  const userId = req.user.id;
-  const user = User.findOne({
-    where: {id: userId},
+router.get('/dashboard', ensureAuthenticated, async (req, res) =>{
+  const products = await Product.findAll();
+  const userId = await req.user.id;
+  let purchased_item = [];
+  let totalQty = 0;
+  let totalPrice = 0;
+  const user = await User.findOne({
+    where:{
+      id:userId
+    },
     include: [Order]
-  }).then(user => {
-  }).catch(err => console.log(err));
+  });
+  user.orders.forEach(order=>{
+    const items = order.description.split(',');
+    items.forEach(item=>{
+      purchased_item.push({name:item, purchased_at:order.createdAt});
+    });
+  });
+  if(req.session.cart!==undefined){
+    const cart = new Cart(req.session.cart);
+    cart.generateArray().forEach(item=>{
+      totalPrice += item.item.price;
+      totalQty += item.qty;
+    });
+  }
   res.render('dashboard', {
-      user: user,
-      orders: user.orders
+      user,
+      purchased_item,
+      totalQty,
+      totalPrice
     });
   }
 );

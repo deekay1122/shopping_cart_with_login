@@ -8,9 +8,23 @@ const { forwardAuthenticated } = require('../config/auth');
 const sequelize = require('../config/connection');
 const csrfProtection = require('../config/csrf');
 const parseForm = require('../config/parseForm');
+const Cart = require('../models/Cart');
 
 // Register Page
-router.get('/register', csrfProtection, forwardAuthenticated, (req, res) => res.render('register',{ csrfToken: req.csrfToken }));
+router.get('/register', csrfProtection, forwardAuthenticated, (req, res) =>{
+  const cart = new Cart(req.session.cart ? req.session.cart : {});
+  let totalPrice = 0;
+  let totalQty = 0;
+  cart.generateArray().forEach(item=>{
+    totalPrice += item.item.price;
+    totalQty += item.qty;
+  });
+  res.render('register', {
+    csrfToken: req.csrfToken,
+    totalPrice,
+    totalQty
+   })
+});
 
 // Register
 const RegisterController = require('../controllers/registerController');
@@ -21,10 +35,21 @@ const VerificationController = require('../controllers/verificationController');
 router.get('/verification', VerificationController);
 
 // get Login Page
-router.get('/login', csrfProtection, forwardAuthenticated, (req, res) => res.render('login', {
+router.get('/login', csrfProtection, forwardAuthenticated, (req, res) => {
+  let totalQty = 0;
+  let totalPrice = 0;
+  const cart = new Cart(req.session.cart ? req.session.cart : {} );
+  cart.generateArray().forEach(item=>{
+    totalPrice += item.item.price;
+    totalQty += item.qty;
+  });
+  res.render('login', {
    csrfToken: req.csrfToken,
-   originalUrl: undefined
- }));
+   originalUrl: undefined,
+   totalPrice,
+   totalQty
+ })
+});
 
 // Login handler
 router.post('/login', parseForm, csrfProtection, (req, res, next) => {
@@ -44,7 +69,18 @@ router.get('/logout', async (req, res) => {
 
 // get forgot password
 router.get('/forgot', csrfProtection, forwardAuthenticated, (req, res) => {
-  res.render('forgot', { csrfToken: req.csrfToken });
+  let totalQty = 0;
+  let totalPrice = 0;
+  const cart = new Cart(req.session.cart ? req.session.cart : {} );
+  cart.generateArray().forEach(item=>{
+    totalPrice += item.item.price;
+    totalQty += item.qty;
+  });
+  res.render('forgot', {
+    csrfToken: req.csrfToken,
+    totalQty,
+    totalPrice
+  });
 });
 
 // forgot password handler
@@ -61,7 +97,18 @@ router.post('/reset_password', parseForm, csrfProtection, PostNewPasswordControl
 
 // get resend_verification
 router.get('/resend_verification', forwardAuthenticated, csrfProtection, (req, res) => {
-  res.render('resendVerification', { csrfToken: req.csrfToken });
+  const cart = new Cart(req.session.cart ? req.session.cart : {});
+  let totalQty = 0;
+  let totalPrice = 0;
+  cart.generateArray().forEach(item=>{
+    totalPrice += item.item.price;
+    totalQty += item.qty;
+  });
+  res.render('resendVerification', {
+    csrfToken: req.csrfToken,
+    totalPrice,
+    totalQty
+  });
 });
 
 // resend_verification handler
